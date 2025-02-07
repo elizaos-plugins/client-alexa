@@ -16,6 +16,7 @@ export default defineConfig({
         "http",
         "agentkeepalive",
         "fluent-ffmpeg",
+        "@elizaos/core",
         // Add other modules you want to externalize
     ],
 });
