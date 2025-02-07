@@ -1,7 +1,7 @@
-import { type Client, type IAgentRuntime, elizaLogger } from "@elizaos/core";
+import { type Client, type IAgentRuntime, elizaLogger, type Plugin } from "@elizaos/core";
 import { AlexaClient } from "./alexa-client";
 
-export const AlexaClientInterface: Client = {
+const AlexaClientInterface: Client = {
     name: 'alexa',
     start: async (runtime: IAgentRuntime) => {
         const alexaClient = new AlexaClient(runtime);
@@ -13,15 +13,11 @@ export const AlexaClientInterface: Client = {
         );
         return alexaClient;
     },
-    stop: async (runtime: IAgentRuntime) => {
-        try {
-            // stop it
-            elizaLogger.log("Stopping alexa client", runtime.agentId);
-            await runtime.clients.alexa.stop();
-        } catch (e) {
-            elizaLogger.error("client-alexa interface stop error", e);
-        }
-    },
 };
 
-export default AlexaClientInterface;
+const alexaPlugin: Plugin = {
+    name: "alexa",
+    description: "Alexa client plugin",
+    clients: [AlexaClientInterface],
+};
+export default alexaPlugin;
