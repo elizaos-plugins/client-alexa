@@ -1,5 +1,5 @@
-import { Client } from '@elizaos/core';
+import { Plugin } from '@elizaos/core';
 
-declare const AlexaClientInterface: Client;
+declare const alexaPlugin: Plugin;
 
-export { AlexaClientInterface, AlexaClientInterface as default };
+export { alexaPlugin as default };

@@ -19,31 +19,26 @@ function rng() {
   return rnds8Pool.slice(poolPtr, poolPtr += 16);
 }
 
-// ../../node_modules/uuid/dist/esm-node/regex.js
-var regex_default = /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
-
-// ../../node_modules/uuid/dist/esm-node/validate.js
-function validate(uuid) {
-  return typeof uuid === "string" && regex_default.test(uuid);
-}
-var validate_default = validate;
-
 // ../../node_modules/uuid/dist/esm-node/stringify.js
 var byteToHex = [];
 for (let i = 0; i < 256; ++i) {
-  byteToHex.push((i + 256).toString(16).substr(1));
+  byteToHex.push((i + 256).toString(16).slice(1));
 }
-function stringify(arr, offset = 0) {
-  const uuid = (byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]]).toLowerCase();
-  if (!validate_default(uuid)) {
-    throw TypeError("Stringified UUID is invalid");
-  }
-  return uuid;
+function unsafeStringify(arr, offset = 0) {
+  return byteToHex[arr[offset + 0]] + byteToHex[arr[offset + 1]] + byteToHex[arr[offset + 2]] + byteToHex[arr[offset + 3]] + "-" + byteToHex[arr[offset + 4]] + byteToHex[arr[offset + 5]] + "-" + byteToHex[arr[offset + 6]] + byteToHex[arr[offset + 7]] + "-" + byteToHex[arr[offset + 8]] + byteToHex[arr[offset + 9]] + "-" + byteToHex[arr[offset + 10]] + byteToHex[arr[offset + 11]] + byteToHex[arr[offset + 12]] + byteToHex[arr[offset + 13]] + byteToHex[arr[offset + 14]] + byteToHex[arr[offset + 15]];
 }
-var stringify_default = stringify;
+
+// ../../node_modules/uuid/dist/esm-node/native.js
+import crypto2 from "crypto";
+var native_default = {
+  randomUUID: crypto2.randomUUID
+};
 
 // ../../node_modules/uuid/dist/esm-node/v4.js
 function v4(options, buf, offset) {
+  if (native_default.randomUUID && !buf && !options) {
+    return native_default.randomUUID();
+  }
   options = options || {};
   const rnds = options.random || (options.rng || rng)();
   rnds[6] = rnds[6] & 15 | 64;
@@ -55,7 +50,7 @@ function v4(options, buf, offset) {
     }
     return buf;
   }
-  return stringify_default(rnds);
+  return unsafeStringify(rnds);
 }
 var v4_default = v4;
 
@@ -87,6 +82,9 @@ var AlexaClient = class {
       elizaLogger.error("\u274C Failed to launch Alexa bot:", error);
       throw error;
     }
+  }
+  async stop() {
+    elizaLogger.log("\u{1F680} Stopping Alexa bot...");
   }
   async initializeBot() {
     const authenticationConfiguration = {
@@ -174,19 +172,15 @@ var AlexaClientInterface = {
       `\u2705 Alexa client successfully started for character ${runtime.character.name}`
     );
     return alexaClient;
-  },
-  stop: async (runtime) => {
-    try {
-      elizaLogger2.log("Stopping alexa client", runtime.agentId);
-      await runtime.clients.alexa.stop();
-    } catch (e) {
-      elizaLogger2.error("client-alexa interface stop error", e);
-    }
   }
 };
-var index_default = AlexaClientInterface;
+var alexaPlugin = {
+  name: "alexa",
+  description: "Alexa client plugin",
+  clients: [AlexaClientInterface]
+};
+var index_default = alexaPlugin;
 export {
-  AlexaClientInterface,
   index_default as default
 };
 //# sourceMappingURL=index.js.map
